@@ -1,14 +1,19 @@
+# -*- coding: utf-8 -*- 
 from django.shortcuts import render
 from .forms import PostForm
-from .test01 import test
-
+from .system.serve_py import run_model
+from django.utils import timezone
 def post_list(request):
-    output = "HI"
+    output = "result"
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
-            output = test( request.POST.copy().get('text') )
+            keyword = request.POST.copy().get('text')
+            output = run_model( keyword ) #get keyword's result from model 
+            post.published_date = timezone.now()
+            post.output = output
+            post.save()
     else:
         form = PostForm()
     return render(request, 'blog/post_list.html', {'form': form, 'output':output})
